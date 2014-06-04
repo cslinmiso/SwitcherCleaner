@@ -6,6 +6,7 @@ static BOOL cleanerIsEnabled;
 static BOOL removeRecentsIsEnabled;
 static BOOL quitButtonIsEnabled;
 static BOOL swipeUpToCloseIsEnabled;
+static BOOL swipeDownToCloseIsEnabled;
 static BOOL longPressToCloseAllAppsIsEnabled;
 static BOOL excludeNowPlayingApp;
 
@@ -105,6 +106,12 @@ static inline void SetCloseBoxAndGesture(id self, SBIconView *iconView)
             [iconView addGestureRecognizer:swipe];
             [swipe release];
         }
+        if (swipeDownToCloseIsEnabled) {
+            UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeDownToClose:)];
+            swipe.direction = UISwipeGestureRecognizerDirectionDown;
+            [iconView addGestureRecognizer:swipe];
+            [swipe release];
+        }
         if (longPressToCloseAllAppsIsEnabled) {
             UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressToCloseAllApps:)];
             [iconView addGestureRecognizer:longPress];
@@ -140,6 +147,14 @@ static inline void SetCloseBoxAndGesture(id self, SBIconView *iconView)
     if (cleanerIsEnabled && swipeUpToCloseIsEnabled)
         [self iconCloseBoxTapped:(SBIconView *)gesture.view];
 }
+
+%new(v@:@)
+- (void)swipeDownToClose:(UISwipeGestureRecognizer *)gesture
+{
+    if (cleanerIsEnabled && swipeDownToCloseIsEnabled)
+        [self iconCloseBoxTapped:(SBIconView *)gesture.view];
+}
+
 
 %new(v@:@)
 - (void)longPressToCloseAllApps:(UILongPressGestureRecognizer *)gesture
@@ -209,6 +224,8 @@ static void LoadSettings()
     quitButtonIsEnabled = existQB ? [existQB boolValue] : YES;
     id existSU = [dict objectForKey:@"SwipeUpToClose"];
     swipeUpToCloseIsEnabled = existSU ? [existSU boolValue] : YES;
+    id existSD = [dict objectForKey:@"SwipeDownToClose"];
+    swipeDownToCloseIsEnabled = existSD ? [existSD boolValue] : YES;
     id existLP = [dict objectForKey:@"LongPressToCloseAll"];
     longPressToCloseAllAppsIsEnabled = existLP ? [existLP boolValue] : YES;
     id excludeNowPlayingAppPref = [dict objectForKey:@"ExcludeNowPlayingApp"];
